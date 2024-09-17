@@ -1,0 +1,30 @@
+#version 400 core
+
+in vec3 position;
+in vec2 textureCoords;
+in vec3 normal;
+
+out vec2 textureCoords2;
+out vec3 surfaceNormal;
+out vec3 toLightVector;
+out vec3 toCameraVector;
+
+uniform mat4 transformationMatrix;
+uniform mat4 projectionMatrix;
+uniform mat4 viewMatrixT;
+uniform mat4 viewMatrixR;
+uniform vec3 lightPosition;
+uniform vec3 cameraPosition;
+
+void main(void){
+
+	vec4 transformedPosition = transformationMatrix * vec4(position,1.0);
+	gl_Position = projectionMatrix * viewMatrixR * viewMatrixT * transformedPosition;
+	
+	surfaceNormal = (transformationMatrix * vec4(normal,0.0)).xyz;
+	toLightVector = lightPosition - transformedPosition.xyz;
+	toCameraVector = cameraPosition - transformedPosition.xyz;
+	
+	textureCoords2 = textureCoords;
+	
+}

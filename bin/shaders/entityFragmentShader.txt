@@ -1,0 +1,38 @@
+#version 400 core
+
+in vec2 textureCoords2;
+in vec3 surfaceNormal;
+in vec3 toLightVector;
+in vec3 toCameraVector;
+
+out vec4 colour;
+
+uniform sampler2D textureSampler;
+uniform vec3 lightColour;
+uniform float lightIntensity;
+uniform float reflectivity;
+uniform float specular;
+
+void main(void){
+
+	vec3 unitNormal = normalize(surfaceNormal);
+	vec3 unitLightVector = normalize(toLightVector);
+	
+	float normalDotLight = dot(unitNormal,unitLightVector);
+	float ambient = max(normalDotLight,0.3) * lightIntensity;
+	vec3 diffuse = ambient * lightColour;
+	
+	vec3 unitCamera = normalize(toCameraVector);
+	vec3 unitLightDir = -unitLightVector;
+	vec3 reflectedDir = reflect(unitLightDir,unitNormal);
+	
+	float specularConst = dot(reflectedDir,unitCamera);
+	specularConst = max(specularConst,0.0);
+	specularConst = pow(specularConst,specular);
+	vec3 endSpecular = specularConst * reflectivity * lightColour;
+
+	vec4 textureColour = texture(textureSampler,textureCoords2);
+
+	colour = vec4(diffuse,1.0) * textureColour  + vec4(endSpecular,1.0);
+	
+}
